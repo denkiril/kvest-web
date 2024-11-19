@@ -1,3 +1,18 @@
-<div class="page-container">
-  <p>kvest-page works!</p>
-</div>
+<header class="page-header">
+  <h2 class="heading">
+    {{ page() === null ? '404' : page()?.commonData?.name }}
+  </h2>
+</header>
+
+@if (page()) {
+  <div class="page-container">
+    <h1 class="heading">{{ page()?.title }}</h1>
+    <div class="description-container">
+      <p class="description">{{ page()?.description }}</p>
+    </div>
+    <div>
+      <button (click)="goPrev()">prev</button>
+      <button (click)="goNext()">next</button>
+    </div>
+  </div>
+}
