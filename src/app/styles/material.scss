@@ -1,0 +1,25 @@
+@use '@angular/material' as mat;
+@use 'mat-theme';
+
+@include mat.core();
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html {
+  // Apply the light theme by default
+  @include mat.core-theme(mat-theme.$light-theme);
+  @include mat.button-theme(mat-theme.$light-theme);
+
+  // Material custom properies
+  --mdc-filled-button-container-shape: 8px;
+}
+
+// Menu
+// https://v18.material.angular.io/components/menu/overview
+
+.mat-mdc-menu-panel {
+  &.compact-menu {
+    .mat-mdc-menu-item {
+      min-height: 24px;
+    }
+  }
+}

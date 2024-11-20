@@ -1,6 +1,6 @@
 {
   "name": "kvest-web",
-  "type":"module",
+  "type": "module",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -13,10 +13,12 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^18.2.8",
+    "@angular/cdk": "^18.0.0",
     "@angular/common": "^18.2.8",
     "@angular/compiler": "^18.2.8",
     "@angular/core": "^18.2.8",
     "@angular/forms": "^18.2.8",
+    "@angular/material": "^18.0.0",
     "@angular/platform-browser": "^18.2.8",
     "@angular/platform-browser-dynamic": "^18.2.8",
     "@angular/router": "^18.2.8",

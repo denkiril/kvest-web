@@ -9,10 +9,12 @@
     <h1 class="heading">{{ page()?.title }}</h1>
     <div class="description-container">
       <p class="description">{{ page()?.description }}</p>
-    </div>
-    <div>
-      <button (click)="goPrev()">prev</button>
-      <button (click)="goNext()">next</button>
+      <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-btn">
+        <svg class="icon"><use href="assets/icons/more_vert.svg#icon" /></svg>
+      </button>
+      <mat-menu #menu="matMenu" class="compact-menu">
+        <button mat-menu-item (click)="goNext()">Пропустить</button>
+      </mat-menu>
     </div>
   </div>
 }

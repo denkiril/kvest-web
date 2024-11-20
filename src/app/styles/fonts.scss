@@ -1,0 +1,34 @@
+$assets-path: '/assets/';
+$main-font-path: $assets-path + 'fonts/ubuntu/';
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url($main-font-path + 'ubuntu-v20-cyrillic_latin-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url($main-font-path + 'ubuntu-v20-cyrillic_latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url($main-font-path + 'ubuntu-v20-cyrillic_latin-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url($main-font-path + 'ubuntu-v20-cyrillic_latin-700.woff2') format('woff2');
+}

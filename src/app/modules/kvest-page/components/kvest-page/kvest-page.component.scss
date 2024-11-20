@@ -10,7 +10,7 @@ $text-back-color: aliceblue;
   border-bottom-left-radius: $border-radius;
   border-bottom-right-radius: $border-radius;
   color: $text-back-color;
-  background-color: rgb(25, 66, 103);
+  background-color: var(--primary-color);
 
   .heading {
     line-height: 24px;
@@ -44,9 +44,25 @@ $text-back-color: aliceblue;
 }
 
 .description-container {
+  position: relative;
   min-height: 300px;
   padding: 8px;
   margin-bottom: 16px;
   border-radius: $border-radius;
   background-color: $text-back-color;
+
+  .menu-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+
+    .icon {
+      width: 24px;
+      height: 24px;
+      color: var(--main-background-color);
+    }
+  }
 }
