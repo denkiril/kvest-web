@@ -1,0 +1,22 @@
+.kvest-container {
+  height: 200px;
+  margin-bottom: 16px;
+  border-radius: var(--border-radius);
+  background-color: var(--text-back-color);
+
+  .link {
+    position: relative;
+    display: block;
+    height: 100%;
+  }
+
+  .heading {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0 8px 8px 0;
+    font-size: 24px;
+    text-decoration: none;
+    color: var(--primary-color);
+  }
+}

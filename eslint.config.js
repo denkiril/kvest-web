@@ -78,6 +78,11 @@ export default [
   {
     name: 'html eslint config',
     files: ['**/*.html'],
+    rules: {
+      "@angular-eslint/template/eqeqeq": "warn",
+      "@angular-eslint/template/no-negated-async": "warn",
+      "@angular-eslint/template/attributes-order": "warn"
+    }
   },
 
   ...fixupConfigRules(compat.extends('plugin:prettier/recommended')).map(config => ({

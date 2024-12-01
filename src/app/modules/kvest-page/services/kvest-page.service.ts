@@ -26,6 +26,7 @@ interface KvestData {
 
 interface KvestPage extends KvestPageData {
   commonData: KvestData;
+  last: boolean;
 }
 
 const LOCAL_KVESTS_URL = 'assets/data/kvests/';
@@ -85,6 +86,7 @@ export class KvestPageService {
 
   private getKvestPage(data: KvestData, pageId: string | null): KvestPage {
     const { pages } = data;
+    const pagesCount = Object.keys(pages).length;
     const pagesCounter = pageId ? parseInt(pageId) : 0;
     const page = !Number.isNaN(pagesCounter) ? pages[pagesCounter] : undefined;
 
@@ -94,7 +96,11 @@ export class KvestPageService {
       this.navigateToPagesCounter(this.pagesCounter);
     }
 
-    return { ...pages[this.pagesCounter], commonData: data };
+    return {
+      ...pages[this.pagesCounter],
+      commonData: data,
+      last: this.pagesCounter === pagesCount - 1,
+    };
   }
 
   private navigateToPagesCounter(pagesCounter: number | null): void {
