@@ -13,22 +13,29 @@
 @if (page()) {
   <div class="page-container">
     <h1 class="heading">{{ page()?.title }}</h1>
+    @if (page()?.image) {
+      <div class="image-container">
+        <img class="image" alt="image" [src]="page()?.image" />
+      </div>
+    }
     <div class="description-container">
       <p class="description">{{ page()?.description }}</p>
-      @if (!page()?.last) {
+      @if (page()?.canSkip) {
         <button mat-icon-button class="menu-btn" [matMenuTriggerFor]="pageMenu">
           <svg class="icon"><use href="assets/icons/more_vert.svg#icon" /></svg>
         </button>
         <mat-menu #pageMenu="matMenu" class="compact-menu">
-          <button mat-menu-item (click)="goNext()">Пропустить</button>
+          <button mat-menu-item (click)="skip()">Пропустить</button>
         </mat-menu>
       }
     </div>
 
-    @if (page()?.last) {
-      <div class="buttons-block">
+    <div class="buttons-block">
+      @if (page()?.last) {
         <a mat-flat-button [routerLink]="['/k']">Страница квестов</a>
-      </div>
-    }
+      } @else {
+        <button mat-flat-button (click)="skip()">Далее</button>
+      }
+    </div>
   </div>
 }

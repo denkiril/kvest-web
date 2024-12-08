@@ -3,7 +3,9 @@
   "pages": {
     "0": {
       "title": "Kvest 0 page 0 title",
-      "description": "Kvest 0 page 0 description"
+      "description": "Kvest 0 page 0 description",
+      "image": "",
+      "canSkip": false
     },
     "1": {
       "title": "Kvest 0 page 1 title",

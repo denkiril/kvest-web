@@ -21,11 +21,7 @@ export class KvestPageComponent {
 
   public readonly page = toSignal(this.kvestPageService.page$);
 
-  public goNext(): void {
+  public skip(): void {
     this.kvestPageService.goNext();
-  }
-
-  public goPrev(): void {
-    this.kvestPageService.goPrev();
   }
 }

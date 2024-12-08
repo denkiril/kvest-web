@@ -13,23 +13,9 @@ import {
 } from 'rxjs';
 
 import { filterNullable } from '../../../shared/utils';
+import { KvestData, KvestPage } from '../models/kvest-page.model';
 
-interface KvestPageData {
-  title: string;
-  description: string;
-}
-
-interface KvestData {
-  name: string;
-  pages: Record<number, KvestPageData>;
-}
-
-interface KvestPage extends KvestPageData {
-  commonData: KvestData;
-  last: boolean;
-}
-
-const LOCAL_KVESTS_URL = 'assets/data/kvests/';
+const LOCAL_KVESTS_URL = 'assets/content/kvests/';
 
 const PAGES_COUNTER_PARAM_NAME = 'p';
 
@@ -84,8 +70,8 @@ export class KvestPageService {
       });
   }
 
-  private getKvestPage(data: KvestData, pageId: string | null): KvestPage {
-    const { pages } = data;
+  private getKvestPage(commonData: KvestData, pageId: string | null): KvestPage {
+    const { pages } = commonData;
     const pagesCount = Object.keys(pages).length;
     const pagesCounter = pageId ? parseInt(pageId) : 0;
     const page = !Number.isNaN(pagesCounter) ? pages[pagesCounter] : undefined;
@@ -96,11 +82,19 @@ export class KvestPageService {
       this.navigateToPagesCounter(this.pagesCounter);
     }
 
-    return {
-      ...pages[this.pagesCounter],
-      commonData: data,
-      last: this.pagesCounter === pagesCount - 1,
+    const last = this.pagesCounter === pagesCount - 1;
+    const pageData = pages[this.pagesCounter];
+    console.log('pageData:', pageData);
+
+    const result: KvestPage = {
+      commonData,
+      ...pageData,
+      last,
+      canSkip: pageData.canSkip ?? !last,
     };
+
+    console.log('KvestPage:', result);
+    return result;
   }
 
   private navigateToPagesCounter(pagesCounter: number | null): void {

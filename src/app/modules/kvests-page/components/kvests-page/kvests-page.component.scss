@@ -2,21 +2,55 @@
   height: 200px;
   margin-bottom: 16px;
   border-radius: var(--border-radius);
-  background-color: var(--text-back-color);
+  overflow: hidden;
 
   .link {
     position: relative;
     display: block;
     height: 100%;
+    border-radius: var(--border-radius);
+    background-color: var(--secondary-background-color);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    transition: background-size ease-in-out 200ms;
+
+    .image-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: white;
+      opacity: 0;
+      transition: opacity ease-in-out 200ms;
+    }
+
+    &:hover {
+      background-size: 105%;
+
+      .image-cover {
+        opacity: 0.1;
+      }
+    }
   }
 
-  .heading {
+  .heading-container {
     position: absolute;
     right: 0;
     bottom: 0;
-    margin: 0 8px 8px 0;
-    font-size: 24px;
-    text-decoration: none;
-    color: var(--primary-color);
+    height: 40px;
+    padding: 8px 10px;
+    border-radius: var(--border-radius) 0;
+    background-color: var(--secondary-background-color);
+
+    .heading {
+      font-size: 24px;
+      line-height: 24px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      margin: 0;
+      color: var(--primary-color);
+    }
   }
 }

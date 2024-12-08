@@ -13,6 +13,13 @@ html {
   --mdc-filled-button-container-shape: 8px;
 }
 
+
+// Button
+
+button.menu-btn {
+  --mat-icon-button-touch-target-display: none;
+}
+
 // Menu
 // https://v18.material.angular.io/components/menu/overview
 
