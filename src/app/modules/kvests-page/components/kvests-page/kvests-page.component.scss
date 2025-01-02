@@ -1,3 +1,5 @@
+@import 'variables';
+
 .kvest-container {
   height: 200px;
   margin-bottom: 16px;
@@ -24,6 +26,25 @@
       background-color: white;
       opacity: 0;
       transition: opacity ease-in-out 200ms;
+    }
+
+    .image-cover-img {
+      width: 240px;
+      height: 240px;
+      position: absolute;
+      top: -150px;
+      left: 57%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100%;
+      opacity: 0.4;
+      transform: translateX(-50%);
+
+      @media screen and (max-width: $mobile-max-width) {
+        width: 200px;
+        height: 200px;
+        top: -125px;
+      }
     }
 
     &:hover {

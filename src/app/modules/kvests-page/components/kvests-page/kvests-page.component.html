@@ -4,16 +4,22 @@
 
 <div class="page-container">
   <p class="heading">Поехали!</p>
-  <div class="kvest-container">
-    <a
-      class="link"
-      [routerLink]="['/k/1']"
-      [style.background-image]="'url(assets/content/images/cover-1.jpg)'"
-    >
-      <span class="image-cover"></span>
-      <span class="heading-container">
-        <h2 class="heading">Прогулка по центру Орла</h2>
-      </span>
-    </a>
-  </div>
+  @for (item of kvestsItems(); track item.id) {
+    <div class="kvest-container">
+      <a
+        class="link"
+        [routerLink]="[item.id]"
+        [style.background-image]="'url(' + item.backImgUrl + ')'"
+      >
+        <span class="image-cover"></span>
+        <span
+          class="image-cover-img"
+          [style.background-image]="'url(' + item.coverImgUrl + ')'"
+        ></span>
+        <span class="heading-container">
+          <h2 class="heading">{{ item.title }}</h2>
+        </span>
+      </a>
+    </div>
+  }
 </div>
