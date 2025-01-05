@@ -51,6 +51,7 @@ export default [
         prefix: 'exokv',
         style: 'kebab-case',
       }],
+      '@typescript-eslint/no-unused-vars': 'warn',
       'no-console': 'warn',
       // https://github.com/import-js/eslint-plugin-import/blob/v2.31.0/docs/rules/order.md
       'import/order': ['warn', {

@@ -13,20 +13,149 @@ html {
   --mdc-filled-button-container-shape: 8px;
 }
 
-
 // Button
+// https://v18.material.angular.io/components/button/overview
 
 button.menu-btn {
   --mat-icon-button-touch-target-display: none;
+}
+
+[mat-flat-button] {
+  &.pending {
+    pointer-events: none;
+
+    .mat-mdc-button-persistent-ripple {
+      &::before {
+        opacity: 0.3 !important;
+      }
+    }
+  }
 }
 
 // Menu
 // https://v18.material.angular.io/components/menu/overview
 
 .mat-mdc-menu-panel {
+  --mat-menu-item-label-text-color: var(--primary-color);
+
   &.compact-menu {
     .mat-mdc-menu-item {
       min-height: 24px;
     }
+  }
+}
+
+// Input
+// https://v18.material.angular.io/components/input/overview
+
+.mat-mdc-input-element {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 16px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  padding: 0 6px;
+
+  &:focus-visible {
+    border: 2px solid var(--primary-color);
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type=number] {
+    -moz-appearance: textfield;
+  }
+}
+
+.ng-touched.ng-dirty.ng-invalid {
+  .mat-mdc-input-element {
+    border: 2px solid var(--error-color);
+  }
+}
+
+// Drag&Drop
+// https://v18.material.angular.io/cdk/drag-drop/overview
+
+.cdk-drag.option {
+  width: 400px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  background-color: var(--primary-background-color);
+  cursor: grab;
+
+  & + .option {
+    margin-top: 8px;
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0;
+  }
+
+  &.cdk-drag-preview {
+    box-shadow: 0px 4px 6px 2px rgba(0, 0, 0, 0.4);
+    pointer-events: all !important;
+    cursor: grabbing;
+  }
+
+  @media screen and (max-width: $layout-max-width) {
+    width: 100%;
+  }
+}
+
+.ng-touched.ng-dirty.ng-invalid {
+  .cdk-drag.option {
+    &:nth-of-type(odd) {
+      animation: flash 800ms ease-in-out, tremor-odd 800ms ease-in-out;
+    }
+    &:nth-of-type(even) {
+      animation: flash 800ms ease-in-out, tremor-even 800ms ease-in-out;
+    }
+  }
+}
+
+@keyframes flash {
+  0% {
+    color: initial;
+    border-color: initial;
+  }
+  25% {
+    color: var(--error-color);
+    border-color: var(--error-color);
+  }
+  75% {
+    color: var(--error-color);
+    border-color: var(--error-color);
+  }
+  100% {
+    color: initial;
+    border-color: initial;
+  }
+}
+
+@keyframes tremor-odd {
+  25% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+}
+
+@keyframes tremor-even {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
   }
 }

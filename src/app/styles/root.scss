@@ -1,8 +1,12 @@
+@use '@angular/material' as mat;
+@use 'mat-theme' as *;
+
 :root {
   --main-background-color: #ccd7df;
   --primary-color: #194267;
   --primary-background-color: aliceblue;
   --secondary-background-color: #f7f7f7;
+  --error-color: #{mat.get-theme-color($light-theme, error, 40)};
   --border-radius: 8px;
 }
 

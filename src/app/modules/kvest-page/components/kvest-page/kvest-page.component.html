@@ -34,7 +34,22 @@
       @if (page()?.last) {
         <a mat-flat-button [routerLink]="['/k']">Страница квестов</a>
       } @else {
-        <button mat-flat-button (click)="skip()">Далее</button>
+        <exokv-kvest-challenge
+          [challenge]="challenge()"
+          [formControl]="challengeControl"
+        />
+        <button
+          mat-flat-button
+          [class.pending]="pending()"
+          [disabled]="!pending() && challenge() && challengeControl.invalid"
+          (click)="submit()"
+        >
+          @if (pending()) {
+            <exokv-spinner />
+          } @else {
+            {{ challenge() ? 'Ответить' : 'Далее' }}
+          }
+        </button>
       }
     </div>
   </div>
