@@ -25,6 +25,10 @@ import {
 import { KvestData, KvestPage } from '../models/kvest-page.model';
 
 const PAGES_COUNTER_PARAM_NAME = 'p';
+const PASSED_LS_KEY = 'kvest-passed-index';
+
+// TODO
+// easter eggs: for geolocation, etc.
 
 @Injectable()
 export class KvestPageService {
@@ -53,13 +57,13 @@ export class KvestPageService {
   private pagesCounter = 0;
   private readonly pagesCounter$ = new Subject<number>();
 
-  public readonly page$: Observable<KvestPage | null> = combineLatest([
+  public readonly page$: Observable<KvestPage | undefined> = combineLatest([
     this.kvestData$,
     this.routeId$,
     this.pageId$,
   ]).pipe(
     map(([data, routeId, pageId]) =>
-      data ? this.prepareKvestPage(data, routeId, pageId) : null,
+      data ? this.prepareKvestPage(data, routeId, pageId) : undefined,
     ),
   );
 
@@ -67,7 +71,8 @@ export class KvestPageService {
     this.init();
   }
 
-  public goNext(): void {
+  public goNext(page?: KvestPage): void {
+    if (page) this.passPage(page);
     this.pagesCounter$.next(this.pagesCounter + 1);
   }
 
@@ -112,17 +117,21 @@ export class KvestPageService {
 
     const last = this.pagesCounter === pagesCount - 1;
     const pageData = pages[this.pagesCounter];
-    console.log('pageData:', pageData);
+    console.log('pageData:', this.pagesCounter, pageData);
+
     const image: string | undefined = pageData.image
       ? KVEST_IMAGES_URL.replace(ID_STR, routeId) + pageData.image
       : undefined;
+    const passedIndex = this.getPassedIndex();
 
     const result: KvestPage = {
-      commonData,
       ...pageData,
-      image,
-      last,
       canSkip: pageData.canSkip ?? !last,
+      commonData,
+      image,
+      index: this.pagesCounter,
+      last,
+      passed: passedIndex !== undefined && passedIndex >= this.pagesCounter,
     };
 
     console.log('KvestPage:', result);
@@ -134,5 +143,22 @@ export class KvestPageService {
       relativeTo: this.route,
       queryParams: { [PAGES_COUNTER_PARAM_NAME]: pagesCounter || null },
     });
+  }
+
+  private getPassedIndex(): number | undefined {
+    const passedStr = localStorage.getItem(PASSED_LS_KEY);
+    if (!passedStr) return;
+
+    const passedIndex = parseInt(passedStr);
+
+    return !Number.isNaN(passedIndex) ? passedIndex : undefined;
+  }
+
+  private passPage(page: KvestPage): void {
+    const passedIndex = this.getPassedIndex();
+
+    if (passedIndex === undefined || passedIndex < page.index) {
+      localStorage.setItem(PASSED_LS_KEY, String(page.index));
+    }
   }
 }

@@ -35,19 +35,20 @@
         <a mat-flat-button [routerLink]="['/k']">Страница квестов</a>
       } @else {
         <exokv-kvest-challenge
-          [challenge]="challenge()"
           [formControl]="challengeControl"
+          [challenge]="page()?.challenge"
+          [mustPassChallenge]="mustPassChallenge()"
         />
         <button
           mat-flat-button
           [class.pending]="pending()"
-          [disabled]="!pending() && challenge() && challengeControl.invalid"
+          [disabled]="!pending() && mustPassChallenge() && challengeControl.invalid"
           (click)="submit()"
         >
           @if (pending()) {
             <exokv-spinner />
           } @else {
-            {{ challenge() ? 'Ответить' : 'Далее' }}
+            {{ mustPassChallenge() ? 'Ответить' : 'Далее' }}
           }
         </button>
       }

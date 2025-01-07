@@ -15,8 +15,11 @@ import { RouterModule } from '@angular/router';
 import { tap, timer } from 'rxjs';
 
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { KvestPage } from '../../models/kvest-page.model';
 import { KvestPageService } from '../../services/kvest-page.service';
 import { KvestChallengeComponent } from '../kvest-challenge/kvest-challenge.component';
+
+const SHOW_PENDING_DELAY = 500;
 
 @Component({
   selector: 'exokv-kvest-page',
@@ -39,9 +42,11 @@ export class KvestPageComponent implements OnInit {
   private readonly kvestPageService = inject(KvestPageService);
 
   public readonly page = toSignal(
-    this.kvestPageService.page$.pipe(tap(() => this.pageUpdated())),
+    this.kvestPageService.page$.pipe(tap(page => page && this.pageUpdated(page))),
   );
-  public readonly challenge = computed(() => this.page()?.challenge);
+  public readonly mustPassChallenge = computed(
+    () => this.page()?.challenge && !this.page()?.passed,
+  );
   public readonly pending = signal(false);
 
   public readonly challengeControl = new FormControl<unknown>(null, Validators.required);
@@ -58,11 +63,14 @@ export class KvestPageComponent implements OnInit {
   }
 
   public submit(): void {
-    const challenge = this.page()?.challenge;
-    console.log('submit', challenge);
+    const page = this.page();
+    if (!page) return;
 
-    if (!challenge) {
-      this.skip();
+    const { challenge } = page;
+
+    if (!challenge || !this.mustPassChallenge()) {
+      this.pending.set(true);
+      this.kvestPageService.goNext(page);
       return;
     }
 
@@ -74,7 +82,7 @@ export class KvestPageComponent implements OnInit {
       .subscribe(() => {
         if (challengeValue === challenge.answer) {
           console.log('success!');
-          this.kvestPageService.goNext();
+          this.kvestPageService.goNext(page);
         } else {
           console.warn('FAIL!!');
           this.challengeControl.setErrors({ fail: true });
@@ -84,11 +92,11 @@ export class KvestPageComponent implements OnInit {
       });
   }
 
-  private pageUpdated(): void {
+  private pageUpdated(page: KvestPage): void {
     this.challengeControl.setValue(null);
     this.challengeControl.markAsUntouched();
 
-    timer(500)
+    timer(page.passed ? 0 : SHOW_PENDING_DELAY)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.pending.set(false));
   }

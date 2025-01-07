@@ -17,6 +17,8 @@ import { Challenge, ChallengeOption } from '../../models/kvest-page.model';
 
 type KvestChallengeValue = string;
 
+const SHUFFLE_COUNT = 20;
+
 @Component({
   selector: 'exokv-kvest-challenge',
   standalone: true,
@@ -35,6 +37,7 @@ type KvestChallengeValue = string;
 })
 export class KvestChallengeComponent implements ControlValueAccessor {
   public readonly challenge = input<Challenge>();
+  public readonly mustPassChallenge = input<boolean>();
 
   public readonly options = computed<ChallengeOption[]>(() =>
     this.prepareOptions(this.challenge()),
@@ -81,7 +84,7 @@ export class KvestChallengeComponent implements ControlValueAccessor {
     do {
       this.shuffleOptions(options);
       counter++;
-    } while (counter < 20 || this.getOptionsValue(options) === answer);
+    } while (counter < SHUFFLE_COUNT || this.getOptionsValue(options) === answer);
 
     this.pushValue(this.getOptionsValue(options));
 

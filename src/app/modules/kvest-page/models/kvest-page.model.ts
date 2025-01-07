@@ -26,5 +26,7 @@ export interface KvestData {
 
 export interface KvestPage extends KvestPageData {
   commonData: KvestData;
+  index: number;
   last: boolean;
+  passed?: boolean;
 }

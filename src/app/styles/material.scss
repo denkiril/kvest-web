@@ -53,12 +53,21 @@ button.menu-btn {
   font-size: 16px;
   height: 36px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid var(--primary-border-color);
   outline: none;
   padding: 0 6px;
 
   &:focus-visible {
     border: 2px solid var(--primary-color);
+  }
+
+  &:disabled {
+    border-color: var(--mdc-filled-button-disabled-container-color);
+    background-color: rgba(26, 28, 30, 0.06);
+
+    &::placeholder {
+      color: rgba(26, 28, 30, 0.25);
+    }
   }
 
   &::-webkit-outer-spin-button,
@@ -109,6 +118,15 @@ button.menu-btn {
 
   @media screen and (max-width: $layout-max-width) {
     width: 100%;
+  }
+}
+
+.cdk-drop-list-disabled {
+  .cdk-drag.option {
+    color: rgba(99, 99, 99, 0.6);
+    border-color: var(--mdc-filled-button-disabled-container-color);
+    background-color: var(--mdc-filled-button-disabled-container-color);
+    cursor: default;
   }
 }
 

@@ -3,7 +3,11 @@
 
 :root {
   --main-background-color: #ccd7df;
+  --main-background-color: #1967654d;
+  --main-background-color: #62d46b4a;
+  --main-background-color: #c1dfd3;
   --primary-color: #194267;
+  --primary-border-color: #19436780;
   --primary-background-color: aliceblue;
   --secondary-background-color: #f7f7f7;
   --error-color: #{mat.get-theme-color($light-theme, error, 40)};
