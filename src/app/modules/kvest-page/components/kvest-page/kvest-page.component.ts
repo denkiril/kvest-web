@@ -62,6 +62,10 @@ export class KvestPageComponent implements OnInit {
     this.kvestPageService.goNext();
   }
 
+  public restart(): void {
+    this.kvestPageService.restart();
+  }
+
   public submit(): void {
     const page = this.page();
     if (!page) return;

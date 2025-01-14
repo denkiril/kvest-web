@@ -1,4 +1,5 @@
 interface KvestPageData {
+  id: string;
   title: string;
   description: string;
   image?: string;
@@ -20,13 +21,12 @@ export interface ChallengeOption {
 }
 
 export interface KvestData {
-  name: string;
-  pages: Record<number, KvestPageData>;
+  title: string;
+  pages: KvestPageData[];
 }
 
 export interface KvestPage extends KvestPageData {
   commonData: KvestData;
-  index: number;
   last: boolean;
   passed?: boolean;
 }

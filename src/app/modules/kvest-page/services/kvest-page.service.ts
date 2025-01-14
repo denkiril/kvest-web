@@ -25,7 +25,8 @@ import {
 import { KvestData, KvestPage } from '../models/kvest-page.model';
 
 const PAGES_COUNTER_PARAM_NAME = 'p';
-const PASSED_LS_KEY = 'kvest-passed-index';
+const INTRO_PAGE_ID = '0';
+const PASSED_LS_KEY = 'kvest-passed-arr';
 
 // TODO
 // easter eggs: for geolocation, etc.
@@ -54,6 +55,7 @@ export class KvestPageService {
     catchError(() => of(null)),
   );
 
+  private passedIds = this.getPassedIds();
   private pagesCounter = 0;
   private readonly pagesCounter$ = new Subject<number>();
 
@@ -76,17 +78,23 @@ export class KvestPageService {
     this.pagesCounter$.next(this.pagesCounter + 1);
   }
 
-  public goPrev(): void {
-    this.pagesCounter$.next(this.pagesCounter - 1);
+  public restart(): void {
+    localStorage.removeItem(PASSED_LS_KEY);
+    this.passedIds = [];
+    this.pagesCounter$.next(0);
   }
 
   private init(): void {
     this.pagesCounter$
-      .pipe(withLatestFrom(this.kvestData$))
+      .pipe(withLatestFrom(this.kvestData$.pipe(filterNullable())))
       .subscribe(([pagesCounter, data]) => {
-        const page = data?.pages[pagesCounter];
+        const { pages } = data;
+        const unpassedPage = pages.find(
+          (page, index) => index <= pagesCounter && !this.passedIds.includes(page.id),
+        );
+        const page = unpassedPage ?? pages[pagesCounter];
         if (page) {
-          this.navigateToPagesCounter(pagesCounter || null);
+          this.navigateToPage(page.id);
         }
       });
   }
@@ -103,62 +111,72 @@ export class KvestPageService {
     commonData: KvestData,
     routeId: string,
     pageId: string | null,
-  ): KvestPage {
+  ): KvestPage | undefined {
     const { pages } = commonData;
-    const pagesCount = Object.keys(pages).length;
-    const pagesCounter = pageId ? parseInt(pageId) : 0;
-    const page = !Number.isNaN(pagesCounter) ? pages[pagesCounter] : undefined;
+    const pagesCount = pages.length;
+    const pagesCounter =
+      pageId === null ? 0 : pages.findIndex(page => page.id === pageId);
 
-    if (page) {
-      this.pagesCounter = pagesCounter;
-    } else {
-      this.navigateToPagesCounter(this.pagesCounter);
+    if (pagesCounter === -1) {
+      const id = pages[this.pagesCounter]?.id ?? INTRO_PAGE_ID;
+      this.navigateToPage(id);
+      return;
     }
 
+    this.pagesCounter = pagesCounter;
     const last = this.pagesCounter === pagesCount - 1;
     const pageData = pages[this.pagesCounter];
     console.log('pageData:', this.pagesCounter, pageData);
 
-    const image: string | undefined = pageData.image
-      ? KVEST_IMAGES_URL.replace(ID_STR, routeId) + pageData.image
+    const { canSkip, id, image } = pageData;
+    const imageUrl: string | undefined = image
+      ? KVEST_IMAGES_URL.replace(ID_STR, routeId) + image
       : undefined;
-    const passedIndex = this.getPassedIndex();
 
     const result: KvestPage = {
       ...pageData,
-      canSkip: pageData.canSkip ?? !last,
+      canSkip: canSkip ?? !last,
       commonData,
-      image,
-      index: this.pagesCounter,
+      image: imageUrl,
+      // index: this.pagesCounter,
       last,
-      passed: passedIndex !== undefined && passedIndex >= this.pagesCounter,
+      passed: this.passedIds.includes(id),
     };
 
     console.log('KvestPage:', result);
     return result;
   }
 
-  private navigateToPagesCounter(pagesCounter: number | null): void {
+  private navigateToPage(id: string): void {
+    console.log('navigateToPage', id);
+    const pageId = id === INTRO_PAGE_ID ? null : id;
+
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { [PAGES_COUNTER_PARAM_NAME]: pagesCounter || null },
+      queryParams: { [PAGES_COUNTER_PARAM_NAME]: pageId },
     });
   }
 
-  private getPassedIndex(): number | undefined {
+  private getPassedIds(): string[] {
     const passedStr = localStorage.getItem(PASSED_LS_KEY);
-    if (!passedStr) return;
+    if (!passedStr) return [];
 
-    const passedIndex = parseInt(passedStr);
+    let passedIds: unknown;
+    try {
+      passedIds = JSON.parse(passedStr);
+    } catch (e) {
+      console.warn('getPassedNames parse error:', e);
+    }
 
-    return !Number.isNaN(passedIndex) ? passedIndex : undefined;
+    return Array.isArray(passedIds) ? passedIds : [];
   }
 
   private passPage(page: KvestPage): void {
-    const passedIndex = this.getPassedIndex();
+    const { id } = page;
 
-    if (passedIndex === undefined || passedIndex < page.index) {
-      localStorage.setItem(PASSED_LS_KEY, String(page.index));
+    if (!this.passedIds.includes(id)) {
+      this.passedIds.push(id);
+      localStorage.setItem(PASSED_LS_KEY, JSON.stringify(this.passedIds));
     }
   }
 }

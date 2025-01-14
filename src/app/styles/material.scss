@@ -40,7 +40,11 @@ button.menu-btn {
 
   &.compact-menu {
     .mat-mdc-menu-item {
-      min-height: 24px;
+      min-height: 32px;
+
+      &.warning {
+        color: var(--error-color);
+      }
     }
   }
 }

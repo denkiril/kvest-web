@@ -52,7 +52,7 @@ export default [
         style: 'kebab-case',
       }],
       '@typescript-eslint/no-unused-vars': 'warn',
-      'no-console': 'warn',
+      'no-console': ['warn', { 'allow': ['warn', 'error'] }],
       // https://github.com/import-js/eslint-plugin-import/blob/v2.31.0/docs/rules/order.md
       'import/order': ['warn', {
         alphabetize: {
@@ -80,9 +80,9 @@ export default [
     name: 'html eslint config',
     files: ['**/*.html'],
     rules: {
-      "@angular-eslint/template/eqeqeq": "warn",
-      "@angular-eslint/template/no-negated-async": "warn",
-      "@angular-eslint/template/attributes-order": "warn"
+      '@angular-eslint/template/eqeqeq': 'warn',
+      '@angular-eslint/template/no-negated-async': 'warn',
+      '@angular-eslint/template/attributes-order': 'warn'
     }
   },
 

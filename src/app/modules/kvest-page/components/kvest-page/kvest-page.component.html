@@ -1,12 +1,13 @@
 <header class="page-header">
   <h2 class="heading">
-    {{ page() === null ? '404' : page()?.commonData?.name }}
+    {{ page() === null ? '404' : page()?.commonData?.title }}
   </h2>
   <button mat-icon-button class="menu-btn" [matMenuTriggerFor]="headerMenu">
     <svg class="icon"><use href="assets/icons/more_vert.svg#icon" /></svg>
   </button>
   <mat-menu #headerMenu="matMenu" class="compact-menu">
     <a mat-menu-item [routerLink]="['/k']">Страница квестов</a>
+    <button mat-menu-item class="warning" (click)="restart()">Начать квест заново</button>
   </mat-menu>
 </header>
 
