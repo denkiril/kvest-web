@@ -65,7 +65,7 @@ export class KvestPageService {
 
   private passedIds: Set<string> = this.getPassedIds();
   private skippedIds: Set<string> = this.getPassedIds(true);
-  /** Костыль, с kvestData$ с share() не получилось разобраться. TODO избавиться. */
+  /** Костыль, с kvestData$ с share() не получилось разобраться. TODO избавиться? */
   private currentPages: KvestPageData[] = [];
   private pagesCounter = 0;
   private readonly pagesCounter$ = new Subject<number>();
@@ -91,7 +91,11 @@ export class KvestPageService {
     } else {
       this.skipPage(curPage);
     }
-    this.pagesCounter$.next(this.pagesCounter + 1);
+
+    const nextIndex = this.currentPages.findIndex(
+      (item, index) => index > this.pagesCounter && !item.secret,
+    );
+    this.pagesCounter$.next(nextIndex);
   }
 
   public goToPage(curPage: KvestPage, targetPageId: string): void {

@@ -15,4 +15,8 @@ export const appRoutes: Routes = [
         module => module.kvestPageRoutes,
       ),
   },
+  {
+    path: '**',
+    redirectTo: 'k',
+  },
 ];
