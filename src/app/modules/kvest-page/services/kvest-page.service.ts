@@ -7,6 +7,7 @@ import {
   map,
   Observable,
   of,
+  share,
   Subject,
   switchMap,
   withLatestFrom,
@@ -22,14 +23,20 @@ import {
   KvestsItem,
   LOCAL_KVEST_ITEMS_URL,
 } from '../../kvests-page/models/kvests-page.model';
-import { KvestData, KvestPage } from '../models/kvest-page.model';
+import {
+  GeoPoint,
+  KvestData,
+  KvestPage,
+  KvestPageData,
+} from '../models/kvest-page.model';
 
 const PAGES_COUNTER_PARAM_NAME = 'p';
 const INTRO_PAGE_ID = '0';
 const PASSED_LS_KEY = 'kvest-passed-arr';
+const SKIPPED_LS_KEY = 'kvest-skipped-arr';
 
 // TODO
-// easter eggs: for geolocation, etc.
+// easter eggs: for geolocation [+], etc.
 
 @Injectable()
 export class KvestPageService {
@@ -53,9 +60,13 @@ export class KvestPageService {
   private readonly kvestData$: Observable<KvestData | null> = this.routeId$.pipe(
     switchMap(id => this.http.get<KvestData>(KVESTS_INDEX_URL.replace(ID_STR, id))),
     catchError(() => of(null)),
+    share(),
   );
 
-  private passedIds = this.getPassedIds();
+  private passedIds: Set<string> = this.getPassedIds();
+  private skippedIds: Set<string> = this.getPassedIds(true);
+  /** Костыль, с kvestData$ с share() не получилось разобраться. TODO избавиться. */
+  private currentPages: KvestPageData[] = [];
   private pagesCounter = 0;
   private readonly pagesCounter$ = new Subject<number>();
 
@@ -73,14 +84,30 @@ export class KvestPageService {
     this.init();
   }
 
-  public goNext(page?: KvestPage): void {
-    if (page) this.passPage(page);
+  public goNext(curPage: KvestPage, skip?: boolean): void {
+    console.log('goNext', skip);
+    if (!skip) {
+      this.passPage(curPage);
+    } else {
+      this.skipPage(curPage);
+    }
     this.pagesCounter$.next(this.pagesCounter + 1);
+  }
+
+  public goToPage(curPage: KvestPage, targetPageId: string): void {
+    console.log('goToPage', targetPageId);
+
+    const targetIndex = this.currentPages.findIndex(item => item.id === targetPageId);
+    if (targetIndex !== -1) {
+      this.passPage(curPage);
+      this.pagesCounter$.next(targetIndex);
+    }
   }
 
   public restart(): void {
     localStorage.removeItem(PASSED_LS_KEY);
-    this.passedIds = [];
+    this.passedIds.clear();
+    this.skippedIds.clear();
     this.pagesCounter$.next(0);
   }
 
@@ -90,8 +117,13 @@ export class KvestPageService {
       .subscribe(([pagesCounter, data]) => {
         const { pages } = data;
         const unpassedPage = pages.find(
-          (page, index) => index <= pagesCounter && !this.passedIds.includes(page.id),
+          (page, index) =>
+            !page.secret &&
+            index <= pagesCounter &&
+            !this.passedIds.has(page.id) &&
+            !this.skippedIds.has(page.id),
         );
+        console.log('pagesCounter', pagesCounter, unpassedPage);
         const page = unpassedPage ?? pages[pagesCounter];
         if (page) {
           this.navigateToPage(page.id);
@@ -112,7 +144,9 @@ export class KvestPageService {
     routeId: string,
     pageId: string | null,
   ): KvestPage | undefined {
-    const { pages } = commonData;
+    const { geopoints, pages } = commonData;
+
+    this.currentPages = pages;
     const pagesCount = pages.length;
     const pagesCounter =
       pageId === null ? 0 : pages.findIndex(page => page.id === pageId);
@@ -128,22 +162,24 @@ export class KvestPageService {
     const pageData = pages[this.pagesCounter];
     console.log('pageData:', this.pagesCounter, pageData);
 
-    const { canSkip, id, image } = pageData;
+    const { canSkip, geopoint_ids, id, image } = pageData;
     const imageUrl: string | undefined = image
       ? KVEST_IMAGES_URL.replace(ID_STR, routeId) + image
       : undefined;
+    const pageGeopoints: GeoPoint[] | undefined = geopoint_ids
+      ?.map(pointId => geopoints.find(item => item.id === pointId))
+      .filter(item => item !== undefined);
 
     const result: KvestPage = {
       ...pageData,
       canSkip: canSkip ?? !last,
       commonData,
       image: imageUrl,
-      // index: this.pagesCounter,
+      geopoints: pageGeopoints,
       last,
-      passed: this.passedIds.includes(id),
+      passed: this.passedIds.has(id),
     };
 
-    console.log('KvestPage:', result);
     return result;
   }
 
@@ -157,26 +193,30 @@ export class KvestPageService {
     });
   }
 
-  private getPassedIds(): string[] {
-    const passedStr = localStorage.getItem(PASSED_LS_KEY);
-    if (!passedStr) return [];
+  private getPassedIds(skipped?: boolean): Set<string> {
+    const passedStr = !skipped
+      ? localStorage.getItem(PASSED_LS_KEY)
+      : sessionStorage.getItem(SKIPPED_LS_KEY);
+    if (!passedStr) return new Set();
 
     let passedIds: unknown;
     try {
       passedIds = JSON.parse(passedStr);
     } catch (e) {
-      console.warn('getPassedNames parse error:', e);
+      console.warn(`getPassedIds (skipped=${skipped}) parse error:`, e);
     }
 
-    return Array.isArray(passedIds) ? passedIds : [];
+    const ids = Array.isArray(passedIds) ? passedIds : [];
+    return new Set(ids);
   }
 
   private passPage(page: KvestPage): void {
-    const { id } = page;
+    this.passedIds.add(page.id);
+    localStorage.setItem(PASSED_LS_KEY, JSON.stringify(Array.from(this.passedIds)));
+  }
 
-    if (!this.passedIds.includes(id)) {
-      this.passedIds.push(id);
-      localStorage.setItem(PASSED_LS_KEY, JSON.stringify(this.passedIds));
-    }
+  private skipPage(page: KvestPage): void {
+    this.skippedIds.add(page.id);
+    sessionStorage.setItem(SKIPPED_LS_KEY, JSON.stringify(Array.from(this.skippedIds)));
   }
 }

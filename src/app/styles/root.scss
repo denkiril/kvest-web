@@ -11,6 +11,7 @@
   --primary-background-color: aliceblue;
   --secondary-background-color: #f7f7f7;
   --error-color: #{mat.get-theme-color($light-theme, error, 40)};
+  --warning-color: rgb(255, 107, 0);
   --border-radius: 8px;
 }
 

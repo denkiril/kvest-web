@@ -1,0 +1,14 @@
+@for (part of parts(); track part.text) {
+  @switch (part.type) {
+    @case ('geo') {
+      @if ((geoPosition$ | async) === undefined) {
+        <span [class]="'content__' + part.type">{{ part.text }}</span>
+      } @else {
+        <p>{{ geoPosition$ | async | json }}</p>
+      }
+    }
+    @default {
+      <span [class]="'content__' + part.type">{{ part.text }}</span>
+    }
+  }
+}

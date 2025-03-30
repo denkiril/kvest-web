@@ -1,10 +1,12 @@
-interface KvestPageData {
+export interface KvestPageData {
   id: string;
   title: string;
   description: string;
   image?: string;
   canSkip?: boolean;
+  secret?: boolean;
   challenge?: Challenge;
+  geopoint_ids?: string[];
 }
 
 export interface Challenge {
@@ -20,13 +22,21 @@ export interface ChallengeOption {
   title: string;
 }
 
+export interface GeoPoint {
+  id: string;
+  lat: number;
+  lon: number;
+}
+
 export interface KvestData {
   title: string;
   pages: KvestPageData[];
+  geopoints: GeoPoint[];
 }
 
 export interface KvestPage extends KvestPageData {
   commonData: KvestData;
+  geopoints?: GeoPoint[];
   last: boolean;
   passed?: boolean;
 }

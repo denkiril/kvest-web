@@ -20,8 +20,9 @@
       </div>
     }
     <div class="description-container">
-      <p class="description">{{ page()?.description }}</p>
-      @if (page()?.canSkip) {
+      <exokv-description [content]="page()?.description" />
+
+      @if (page()?.canSkip || !showSubmitButton()) {
         <button mat-icon-button class="menu-btn" [matMenuTriggerFor]="pageMenu">
           <svg class="icon"><use href="assets/icons/more_vert.svg#icon" /></svg>
         </button>
@@ -40,18 +41,21 @@
           [challenge]="page()?.challenge"
           [mustPassChallenge]="mustPassChallenge()"
         />
-        <button
-          mat-flat-button
-          [class.pending]="pending()"
-          [disabled]="!pending() && mustPassChallenge() && challengeControl.invalid"
-          (click)="submit()"
-        >
-          @if (pending()) {
-            <exokv-spinner />
-          } @else {
-            {{ mustPassChallenge() ? 'Ответить' : 'Далее' }}
-          }
-        </button>
+
+        @if (showSubmitButton()) {
+          <button
+            mat-flat-button
+            [class.pending]="pending()"
+            [disabled]="!pending() && mustPassChallenge() && challengeControl.invalid"
+            (click)="submit()"
+          >
+            @if (pending()) {
+              <exokv-spinner />
+            } @else {
+              {{ submitButtonText() }}
+            }
+          </button>
+        }
       }
     </div>
   </div>

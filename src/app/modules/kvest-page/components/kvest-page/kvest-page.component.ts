@@ -12,14 +12,17 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
-import { tap, timer } from 'rxjs';
+import { Subject, takeUntil, tap, timer } from 'rxjs';
 
+import { DescriptionComponent } from '../../../../shared/components/description/description.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { KvestPage } from '../../models/kvest-page.model';
+import { GeolocationService } from '../../../../shared/services/geolocation.service';
+import { GeoPoint, KvestPage } from '../../models/kvest-page.model';
 import { KvestPageService } from '../../services/kvest-page.service';
 import { KvestChallengeComponent } from '../kvest-challenge/kvest-challenge.component';
 
 const SHOW_PENDING_DELAY = 500;
+const GEO_NEAR_DIFF = 0.00018;
 
 @Component({
   selector: 'exokv-kvest-page',
@@ -29,6 +32,7 @@ const SHOW_PENDING_DELAY = 500;
     ReactiveFormsModule,
     MatButtonModule,
     MatMenuModule,
+    DescriptionComponent,
     KvestChallengeComponent,
     SpinnerComponent,
   ],
@@ -39,6 +43,7 @@ const SHOW_PENDING_DELAY = 500;
 })
 export class KvestPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly geolocationService = inject(GeolocationService);
   private readonly kvestPageService = inject(KvestPageService);
 
   public readonly page = toSignal(
@@ -47,9 +52,13 @@ export class KvestPageComponent implements OnInit {
   public readonly mustPassChallenge = computed(
     () => this.page()?.challenge && !this.page()?.passed,
   );
+  public readonly showSubmitButton = computed(() => !!this.submitButtonText());
+  public readonly submitButtonText = signal('');
   public readonly pending = signal(false);
 
   public readonly challengeControl = new FormControl<unknown>(null, Validators.required);
+
+  private readonly pageUpdated$ = new Subject<void>();
 
   ngOnInit(): void {
     this.challengeControl.valueChanges.subscribe(() => {
@@ -58,8 +67,11 @@ export class KvestPageComponent implements OnInit {
   }
 
   public skip(): void {
+    const curPage = this.page();
+    if (!curPage) return;
+
     this.pending.set(true);
-    this.kvestPageService.goNext();
+    this.kvestPageService.goNext(curPage, true);
   }
 
   public restart(): void {
@@ -67,14 +79,14 @@ export class KvestPageComponent implements OnInit {
   }
 
   public submit(): void {
-    const page = this.page();
-    if (!page) return;
+    const curPage = this.page();
+    if (!curPage) return;
 
-    const { challenge } = page;
+    const { challenge } = curPage;
 
     if (!challenge || !this.mustPassChallenge()) {
       this.pending.set(true);
-      this.kvestPageService.goNext(page);
+      this.kvestPageService.goNext(curPage);
       return;
     }
 
@@ -86,7 +98,7 @@ export class KvestPageComponent implements OnInit {
       .subscribe(() => {
         if (challengeValue === challenge.answer) {
           console.log('success!');
-          this.kvestPageService.goNext(page);
+          this.kvestPageService.goNext(curPage);
         } else {
           console.warn('FAIL!!');
           this.challengeControl.setErrors({ fail: true });
@@ -97,11 +109,57 @@ export class KvestPageComponent implements OnInit {
   }
 
   private pageUpdated(page: KvestPage): void {
+    // console.log('pageUpdated', page);
+    this.pageUpdated$.next();
+    window.scrollTo(0, 0);
+
+    this.initPageData(page);
     this.challengeControl.setValue(null);
     this.challengeControl.markAsUntouched();
 
     timer(page.passed ? 0 : SHOW_PENDING_DELAY)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.pending.set(false));
+  }
+
+  private initPageData(page: KvestPage): void {
+    const { geopoints } = page;
+
+    if (geopoints) {
+      this.geolocationService.geoPosition$
+        .pipe(takeUntil(this.pageUpdated$), takeUntilDestroyed(this.destroyRef))
+        .subscribe(geoPosition => {
+          this.submitButtonText.set(geoPosition ? '' : 'Далее (без геолокации)');
+          this.checkGeoPosition(geoPosition, geopoints);
+        });
+      return;
+    }
+
+    if (this.mustPassChallenge()) {
+      this.submitButtonText.set('Ответить');
+      return;
+    }
+
+    this.submitButtonText.set('Далее');
+  }
+
+  private checkGeoPosition(
+    geoPosition: GeolocationPosition | undefined,
+    geopoints: GeoPoint[],
+  ): void {
+    if (!geoPosition) return;
+
+    const isNear = (a: number, b: number): boolean => Math.abs(a - b) < GEO_NEAR_DIFF;
+
+    const curPage = this.page();
+    const { latitude, longitude } = geoPosition.coords;
+
+    const target = geopoints.find(
+      ({ lat, lon }) => isNear(lat, latitude) && isNear(lon, longitude),
+    );
+
+    if (curPage && target) {
+      this.kvestPageService.goToPage(curPage, target.id);
+    }
   }
 }
