@@ -11,8 +11,9 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
-import { Subject, takeUntil, tap, timer } from 'rxjs';
+import { catchError, finalize, of, Subject, takeUntil, tap, timer } from 'rxjs';
 
 import { DescriptionComponent } from '../../../../shared/components/description/description.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
@@ -23,6 +24,13 @@ import { KvestChallengeComponent } from '../kvest-challenge/kvest-challenge.comp
 
 const SHOW_PENDING_DELAY = 500;
 const GEO_NEAR_DIFF = 0.00018;
+
+const GEOLOCATION_POSITION_ERROR_MESSAGES: Record<number, string> = {
+  [GeolocationPositionError.PERMISSION_DENIED]:
+    'Доступ к геолокации заблокирован пользователем',
+  [GeolocationPositionError.POSITION_UNAVAILABLE]: 'Ошибка определения геолокации',
+  [GeolocationPositionError.TIMEOUT]: 'Ошибка определения геолокации',
+};
 
 @Component({
   selector: 'exokv-kvest-page',
@@ -43,17 +51,20 @@ const GEO_NEAR_DIFF = 0.00018;
 })
 export class KvestPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly geolocationService = inject(GeolocationService);
   private readonly kvestPageService = inject(KvestPageService);
 
   public readonly page = toSignal(
     this.kvestPageService.page$.pipe(tap(page => page && this.pageUpdated(page))),
   );
-  public readonly mustPassChallenge = computed(
-    () => this.page()?.challenge && !this.page()?.passed,
+  public readonly mustPassChallenge = computed(() =>
+    this.isMustPassChallenge(this.page()),
   );
   public readonly showSubmitButton = computed(() => !!this.submitButtonText());
   public readonly submitButtonText = signal('');
+  public readonly showInitGeolocationButton = signal(false);
+  public readonly geolocationButtonPending = signal(false);
   public readonly pending = signal(false);
 
   public readonly challengeControl = new FormControl<unknown>(null, Validators.required);
@@ -62,7 +73,7 @@ export class KvestPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.challengeControl.valueChanges.subscribe(() => {
-      console.log('challengeControl', this.challengeControl);
+      // console.log('challengeControl', this.challengeControl);
     });
   }
 
@@ -84,7 +95,7 @@ export class KvestPageComponent implements OnInit {
 
     const { challenge } = curPage;
 
-    if (!challenge || !this.mustPassChallenge()) {
+    if (!challenge || !this.isMustPassChallenge(curPage)) {
       this.pending.set(true);
       this.kvestPageService.goNext(curPage);
       return;
@@ -108,6 +119,27 @@ export class KvestPageComponent implements OnInit {
       });
   }
 
+  public initGeolocation(): void {
+    this.geolocationButtonPending.set(true);
+    this.geolocationService
+      .initWatchPosition$()
+      .pipe(
+        finalize(() => this.geolocationButtonPending.set(false)),
+        takeUntil(this.pageUpdated$),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        error: (err: GeolocationPositionError) => {
+          console.log('initWatchPosition err:', err);
+          this.showMessage(GEOLOCATION_POSITION_ERROR_MESSAGES[err.code]);
+        },
+      });
+  }
+
+  private isMustPassChallenge(page: KvestPage | undefined): boolean {
+    return !!page?.challenge && !page.passed;
+  }
+
   private pageUpdated(page: KvestPage): void {
     // console.log('pageUpdated', page);
     this.pageUpdated$.next();
@@ -125,17 +157,25 @@ export class KvestPageComponent implements OnInit {
   private initPageData(page: KvestPage): void {
     const { geopoints } = page;
 
+    this.showInitGeolocationButton.set(false);
+
     if (geopoints) {
       this.geolocationService.geoPosition$
-        .pipe(takeUntil(this.pageUpdated$), takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          catchError(() => of(undefined)),
+          takeUntil(this.pageUpdated$),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe(geoPosition => {
-          this.submitButtonText.set(geoPosition ? '' : 'Далее (без геолокации)');
+          console.log('geoPosition', geoPosition);
+          this.submitButtonText.set(!geoPosition ? 'Далее (без геолокации)' : '');
+          this.showInitGeolocationButton.set(!geoPosition);
           this.checkGeoPosition(geoPosition, geopoints);
         });
       return;
     }
 
-    if (this.mustPassChallenge()) {
+    if (this.isMustPassChallenge(page)) {
       this.submitButtonText.set('Ответить');
       return;
     }
@@ -161,5 +201,14 @@ export class KvestPageComponent implements OnInit {
     if (curPage && target) {
       this.kvestPageService.goToPage(curPage, target.id);
     }
+  }
+
+  private showMessage(message: string): void {
+    this.snackBar.open(message, '╳', {
+      duration: 5000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      panelClass: 'snackbar-error',
+    });
   }
 }

@@ -37,6 +37,7 @@ const SKIPPED_LS_KEY = 'kvest-skipped-arr';
 
 // TODO
 // easter eggs: for geolocation [+], etc.
+// реакция на успех - салют, звук
 
 @Injectable()
 export class KvestPageService {

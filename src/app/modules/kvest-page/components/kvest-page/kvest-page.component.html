@@ -55,6 +55,20 @@
               {{ submitButtonText() }}
             }
           </button>
+
+          @if (showInitGeolocationButton()) {
+            <button
+              mat-flat-button
+              [class.pending]="geolocationButtonPending()"
+              (click)="initGeolocation()"
+            >
+              @if (geolocationButtonPending()) {
+                <exokv-spinner />
+              } @else {
+                Проверить геолокацию
+              }
+            </button>
+          }
         }
       }
     </div>

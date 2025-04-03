@@ -1,9 +1,13 @@
 exokv-kvest-challenge {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 
   .arrange-list {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
   }
 }

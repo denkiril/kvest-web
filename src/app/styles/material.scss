@@ -181,3 +181,19 @@ button.menu-btn {
     transform: translateX(4px);
   }
 }
+
+// SnackBar
+
+.snackbar-error {
+  --mdc-snackbar-container-color: var(--error-background-color);
+  --mat-snack-bar-button-color: black;
+  --mat-text-button-horizontal-padding: 0;
+
+  .mat-mdc-snackbar-surface {
+    padding: 0;
+  }
+
+  .mdc-button {
+    min-width: 40px;
+  }
+}
