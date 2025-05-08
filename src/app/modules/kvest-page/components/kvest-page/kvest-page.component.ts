@@ -16,6 +16,7 @@ import { RouterModule } from '@angular/router';
 import { catchError, finalize, of, Subject, takeUntil, tap, timer } from 'rxjs';
 
 import { DescriptionComponent } from '../../../../shared/components/description/description.component';
+import { PictureComponent } from '../../../../shared/components/picture/picture.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { GeolocationService } from '../../../../shared/services/geolocation.service';
 import { GeoPoint, KvestPage } from '../../models/kvest-page.model';
@@ -42,6 +43,7 @@ const GEOLOCATION_POSITION_ERROR_MESSAGES: Record<number, string> = {
     MatMenuModule,
     DescriptionComponent,
     KvestChallengeComponent,
+    PictureComponent,
     SpinnerComponent,
   ],
   providers: [KvestPageService],

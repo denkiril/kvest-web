@@ -1,0 +1,25 @@
+:host {
+  position: relative;
+  display: block;
+  height: 100%;
+
+  .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cover-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    transition: background-color 200ms linear;
+
+    &.pending {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
