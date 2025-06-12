@@ -19,6 +19,7 @@ import { DescriptionComponent } from '../../../../shared/components/description/
 import { PictureComponent } from '../../../../shared/components/picture/picture.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { GeolocationService } from '../../../../shared/services/geolocation.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { GeoPoint, KvestPage } from '../../models/kvest-page.model';
 import { KvestPageService } from '../../services/kvest-page.service';
 import { KvestChallengeComponent } from '../kvest-challenge/kvest-challenge.component';
@@ -56,6 +57,7 @@ export class KvestPageComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly geolocationService = inject(GeolocationService);
   private readonly kvestPageService = inject(KvestPageService);
+  private readonly notificationService = inject(NotificationService);
 
   public readonly page = toSignal(
     this.kvestPageService.page$.pipe(tap(page => page && this.pageUpdated(page))),
@@ -111,6 +113,7 @@ export class KvestPageComponent implements OnInit {
       .subscribe(() => {
         if (challengeValue === challenge.answer) {
           console.log('success!');
+          this.notificationService.dispatch('challenge-success');
           this.kvestPageService.goNext(curPage);
         } else {
           console.warn('FAIL!!');
@@ -201,6 +204,7 @@ export class KvestPageComponent implements OnInit {
     );
 
     if (curPage && target) {
+      this.notificationService.dispatch('challenge-success');
       this.kvestPageService.goToPage(curPage, target.id);
     }
   }
