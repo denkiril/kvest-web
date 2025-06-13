@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   debounceTime,
@@ -9,12 +9,23 @@ import {
   timer,
 } from 'rxjs';
 
+import { NotificationService } from './notification.service';
+
 const SHOW_GEOLOCATION_ALERT_DELAY = 2000;
+
+const GEOLOCATION_POSITION_ERROR_MESSAGES: Record<number, string> = {
+  [GeolocationPositionError.PERMISSION_DENIED]:
+    'Доступ к геолокации заблокирован пользователем',
+  [GeolocationPositionError.POSITION_UNAVAILABLE]: 'Ошибка определения геолокации',
+  [GeolocationPositionError.TIMEOUT]: 'Ошибка определения геолокации',
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class GeolocationService {
+  private readonly notificationService = inject(NotificationService);
+
   private readonly geoPositionSubject = new BehaviorSubject<
     GeolocationPosition | undefined
   >(undefined);
@@ -52,7 +63,11 @@ export class GeolocationService {
       },
       err => {
         console.warn('watchPosition err:', err);
-        this.geoPositionSubject.error(err);
+        this.notificationService.dispatch({
+          type: 'show-error',
+          payload: GEOLOCATION_POSITION_ERROR_MESSAGES[err.code],
+        });
+        this.geoPositionSubject.next(undefined);
       },
       {
         enableHighAccuracy: true,

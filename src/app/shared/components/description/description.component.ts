@@ -6,7 +6,6 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { catchError, of } from 'rxjs';
 
 import { GeolocationService } from '../../services/geolocation.service';
 
@@ -27,9 +26,7 @@ export class DescriptionComponent {
   private readonly geolocationService = inject(GeolocationService);
 
   public readonly content = input.required<string | undefined>();
-  public readonly geoPosition$ = this.geolocationService.geoPosition$.pipe(
-    catchError(() => of(undefined)),
-  );
+  public readonly geoPosition$ = this.geolocationService.geoPosition$;
 
   public readonly parts = computed<ContentPart[]>(() =>
     this.prepareParts(this.content()),

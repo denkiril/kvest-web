@@ -11,9 +11,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
-import { catchError, finalize, of, Subject, takeUntil, tap, timer } from 'rxjs';
+import { finalize, Subject, takeUntil, tap, timer } from 'rxjs';
 
 import { DescriptionComponent } from '../../../../shared/components/description/description.component';
 import { PictureComponent } from '../../../../shared/components/picture/picture.component';
@@ -26,13 +25,6 @@ import { KvestChallengeComponent } from '../kvest-challenge/kvest-challenge.comp
 
 const SHOW_PENDING_DELAY = 500;
 const GEO_NEAR_DIFF = 0.00018;
-
-const GEOLOCATION_POSITION_ERROR_MESSAGES: Record<number, string> = {
-  [GeolocationPositionError.PERMISSION_DENIED]:
-    'Доступ к геолокации заблокирован пользователем',
-  [GeolocationPositionError.POSITION_UNAVAILABLE]: 'Ошибка определения геолокации',
-  [GeolocationPositionError.TIMEOUT]: 'Ошибка определения геолокации',
-};
 
 @Component({
   selector: 'exokv-kvest-page',
@@ -54,7 +46,6 @@ const GEOLOCATION_POSITION_ERROR_MESSAGES: Record<number, string> = {
 })
 export class KvestPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly geolocationService = inject(GeolocationService);
   private readonly kvestPageService = inject(KvestPageService);
   private readonly notificationService = inject(NotificationService);
@@ -113,7 +104,7 @@ export class KvestPageComponent implements OnInit {
       .subscribe(() => {
         if (challengeValue === challenge.answer) {
           console.log('success!');
-          this.notificationService.dispatch('challenge-success');
+          this.notificationService.dispatch({ type: 'challenge-success' });
           this.kvestPageService.goNext(curPage);
         } else {
           console.warn('FAIL!!');
@@ -133,12 +124,7 @@ export class KvestPageComponent implements OnInit {
         takeUntil(this.pageUpdated$),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        error: (err: GeolocationPositionError) => {
-          console.log('initWatchPosition err:', err);
-          this.showMessage(GEOLOCATION_POSITION_ERROR_MESSAGES[err.code]);
-        },
-      });
+      .subscribe();
   }
 
   private isMustPassChallenge(page: KvestPage | undefined): boolean {
@@ -166,11 +152,7 @@ export class KvestPageComponent implements OnInit {
 
     if (geopoints) {
       this.geolocationService.geoPosition$
-        .pipe(
-          catchError(() => of(undefined)),
-          takeUntil(this.pageUpdated$),
-          takeUntilDestroyed(this.destroyRef),
-        )
+        .pipe(takeUntil(this.pageUpdated$), takeUntilDestroyed(this.destroyRef))
         .subscribe(geoPosition => {
           console.log('geoPosition', geoPosition);
           this.submitButtonText.set(!geoPosition ? 'Далее (без геолокации)' : '');
@@ -204,17 +186,8 @@ export class KvestPageComponent implements OnInit {
     );
 
     if (curPage && target) {
-      this.notificationService.dispatch('challenge-success');
+      this.notificationService.dispatch({ type: 'challenge-success' });
       this.kvestPageService.goToPage(curPage, target.id);
     }
-  }
-
-  private showMessage(message: string): void {
-    this.snackBar.open(message, '╳', {
-      duration: 5000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
-      panelClass: 'snackbar-error',
-    });
   }
 }
