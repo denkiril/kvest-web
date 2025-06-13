@@ -15,7 +15,7 @@ export interface Challenge {
   options?: ChallengeOption[];
 }
 
-type ChallengeType = 'input' | 'input-number' | 'radio' | 'arrange';
+type ChallengeType = 'input-text' | 'input-number' | 'radio' | 'arrange';
 
 export interface ChallengeOption {
   id: number;

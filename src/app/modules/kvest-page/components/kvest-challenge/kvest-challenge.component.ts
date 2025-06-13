@@ -59,6 +59,10 @@ export class KvestChallengeComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
+  public onInputText(value: string): void {
+    this.pushValue(value);
+  }
+
   public onInputNumber(value: string): void {
     const val = value ? parseInt(value, 10) : null;
     this.pushValue(String(val));

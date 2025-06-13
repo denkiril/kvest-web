@@ -96,7 +96,7 @@ export class KvestPageComponent implements OnInit {
       return;
     }
 
-    const challengeValue = String(this.challengeControl.value);
+    const challengeValue = String(this.challengeControl.value).toLowerCase().trim();
 
     this.pending.set(true);
     timer(1000)

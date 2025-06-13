@@ -1,13 +1,24 @@
 @switch (challenge()?.type) {
+  @case ('input-text') {
+    <input
+      #inputText
+      type="text"
+      matInput
+      placeholder="Введите ответ"
+      [disabled]="!mustPassChallenge()"
+      (input)="onInputText(inputText.value)"
+    />
+  }
+
   @case ('input-number') {
     <input
-      #input
+      #inputNumber
       type="number"
       min="0"
       matInput
       placeholder="Введите число"
       [disabled]="!mustPassChallenge()"
-      (input)="onInputNumber(input.value)"
+      (input)="onInputNumber(inputNumber.value)"
     />
   }
 
