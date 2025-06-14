@@ -37,7 +37,11 @@ const SKIPPED_LS_KEY = 'kvest-skipped-arr';
 
 // TODO
 // easter eggs: for geolocation [+], etc.
-// реакция на успех - салют, звук
+// реакция на успех - салют, звук [+]
+// просмотр картинок
+// сторис?
+// офлайн-режим (предзагрузка всех ассетов квеста в IDB)
+// настройки (звук)?
 
 @Injectable()
 export class KvestPageService {

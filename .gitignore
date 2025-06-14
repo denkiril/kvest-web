@@ -42,4 +42,5 @@ testem.log
 Thumbs.db
 
 # Content
+/src/assets/audio/
 /src/assets/content/

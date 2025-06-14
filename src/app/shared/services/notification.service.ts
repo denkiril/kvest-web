@@ -24,11 +24,20 @@ export class NotificationService {
     switch (msg.type) {
       case 'challenge-success':
         this.fireworksService.fire();
+        this.playSound('success');
         break;
       case 'show-error':
         this.showError(msg.payload ?? EMPTY_PAYLOAD_ERROR);
         break;
     }
+  }
+
+  private playSound(name: string): void {
+    const audio = new Audio(`assets/audio/${name}.mp3`);
+
+    audio.addEventListener('canplaythrough', () => {
+      audio.play();
+    });
   }
 
   private showError(message: string): void {
