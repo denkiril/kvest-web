@@ -49,11 +49,6 @@
   }
 
   [mat-flat-button] {
-    width: 400px;
     margin-top: 24px;
-
-    @media screen and (max-width: $layout-max-width) {
-      width: 100%;
-    }
   }
 }

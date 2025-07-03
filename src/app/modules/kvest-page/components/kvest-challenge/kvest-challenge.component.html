@@ -5,6 +5,7 @@
       type="text"
       matInput
       placeholder="Введите ответ"
+      class="form-control"
       [disabled]="!mustPassChallenge()"
       (input)="onInputText(inputText.value)"
     />
@@ -30,7 +31,7 @@
       (cdkDropListDropped)="onDrop($event)"
     >
       @for (option of options(); track option.id) {
-        <div class="option" cdkDrag>{{ option.title }}</div>
+        <div class="option form-control" cdkDrag>{{ option.title }}</div>
       }
     </div>
   }

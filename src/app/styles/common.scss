@@ -48,8 +48,16 @@
     margin-bottom: 12px;
   }
 
+  .form-control {
+    width: 400px;
+  }
+
   @media screen and (max-width: $layout-max-width) {
     padding-left: 12px;
     padding-right: 12px;
+
+    .form-control {
+      width: 100%;
+    }
   }
 }
