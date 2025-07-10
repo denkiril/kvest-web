@@ -10,4 +10,16 @@ exokv-kvest-challenge {
     align-items: center;
     width: 100%;
   }
+
+  .option {
+    &.failed {
+      --mat-radio-disabled-label-color: var(--error-color);
+      --mdc-radio-disabled-selected-icon-color: var(--error-color);
+      --mdc-radio-disabled-unselected-icon-color: var(--error-color);
+
+      label {
+        text-decoration: line-through;
+      }
+    }
+  }
 }

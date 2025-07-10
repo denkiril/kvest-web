@@ -23,6 +23,25 @@
     />
   }
 
+  @case ('radio') {
+    <mat-radio-group
+      class="arrange-list"
+      [disabled]="!mustPassChallenge()"
+      (change)="onRadioChange($event)"
+    >
+      @for (option of options(); track option.id) {
+        <mat-radio-button
+          class="option form-control"
+          [class.failed]="failedOptions.has(option.id)"
+          [disabled]="failedOptions.has(option.id)"
+          [value]="option.id"
+        >
+          {{ option.title }}
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+  }
+
   @case ('arrange') {
     <div
       class="arrange-list"

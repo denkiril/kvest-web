@@ -2,14 +2,26 @@
 @use 'mat-theme';
 
 @include mat.core();
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+// @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 html {
   // Apply the light theme by default
+  // @include mat.all-component-themes(mat-theme.$light-theme);
   @include mat.core-theme(mat-theme.$light-theme);
   @include mat.button-theme(mat-theme.$light-theme);
+  @include mat.icon-button-theme(mat-theme.$light-theme);
+  @include mat.menu-theme(mat-theme.$light-theme);
+  @include mat.radio-theme(mat-theme.$light-theme);
 
   // Material custom properies
+  --mat-icon-button-state-layer-color: black;
+  --mat-icon-button-disabled-state-layer-color: black;
+  --mat-icon-button-ripple-color: rgba(0, 0, 0, .1);
+  --mat-icon-button-hover-state-layer-opacity: .04;
+  --mat-icon-button-focus-state-layer-opacity: .12;
+  --mat-icon-button-pressed-state-layer-opacity: .12;
+  --mat-menu-container-color: var(--primary-background-color);
+  --mat-menu-item-label-text-color: var(--primary-color);
   --mdc-filled-button-container-shape: 8px;
 }
 
@@ -36,8 +48,6 @@ button.menu-btn {
 // https://v18.material.angular.io/components/menu/overview
 
 .mat-mdc-menu-panel {
-  --mat-menu-item-label-text-color: var(--primary-color);
-
   &.compact-menu {
     .mat-mdc-menu-item {
       min-height: 32px;
@@ -174,6 +184,24 @@ button.menu-btn {
   }
   75% {
     transform: translateX(4px);
+  }
+}
+
+// Radio
+// https://v18.material.angular.dev/components/radio/overview
+
+.mat-mdc-radio-button {
+  --radio-button-background: var(--primary-background-color);
+
+  .mdc-radio {
+    &--disabled {
+      --radio-button-background: transparent;
+    }
+
+    &__background {
+      background-color: var(--radio-button-background);
+      border-radius: 50%;
+    }
   }
 }
 
