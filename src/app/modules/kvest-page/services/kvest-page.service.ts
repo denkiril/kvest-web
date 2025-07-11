@@ -42,6 +42,7 @@ const SKIPPED_LS_KEY = 'kvest-skipped-arr';
 // сторис?
 // офлайн-режим (предзагрузка всех ассетов квеста в IDB)
 // настройки (звук)?
+// input-number - только целые положительные
 
 @Injectable()
 export class KvestPageService {

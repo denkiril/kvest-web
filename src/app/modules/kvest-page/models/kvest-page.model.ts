@@ -11,7 +11,7 @@ export interface KvestPageData {
 
 export interface Challenge {
   type: ChallengeType;
-  answer: string;
+  answer: string | string[];
   options?: ChallengeOption[];
 }
 

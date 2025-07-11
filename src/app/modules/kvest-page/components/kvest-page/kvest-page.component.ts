@@ -97,12 +97,19 @@ export class KvestPageComponent implements OnInit {
     }
 
     const challengeValue = String(this.challengeControl.value).toLowerCase().trim();
+    const { answer } = challenge;
+    const succeed = Array.isArray(answer)
+      ? challengeValue
+          .split(' ')
+          .map(word => word.trim())
+          .some(word => answer.includes(word))
+      : challengeValue === answer;
 
     this.pending.set(true);
     timer(1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        if (challengeValue === challenge.answer) {
+        if (succeed) {
           console.log('success!');
           this.notificationService.dispatch({ type: 'challenge-success' });
           this.kvestPageService.goNext(curPage);
