@@ -16,7 +16,7 @@
     <h1 class="heading">{{ page()?.title }}</h1>
     @if (page()?.image) {
       <div class="image-container">
-        <exokv-picture [image]="page()?.image" />
+        <exokv-picture [images]="page()?.images" />
       </div>
     }
     <div class="description-container">

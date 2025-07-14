@@ -1,14 +1,15 @@
 @import 'variables';
 
 .image-container {
-  height: 300px;
-  margin-bottom: 16px;
+  width: 400px;
+  aspect-ratio: 4/3;
+  margin: 0 auto 16px;
   border-radius: var(--border-radius);
   background-color: var(--primary-background-color);
   overflow: hidden;
 
-  @media screen and (max-width: $layout-max-width) {
-    height: 260px;
+  @media screen and (max-width: $mobile-max-width) {
+    width: 100%;
   }
 }
 

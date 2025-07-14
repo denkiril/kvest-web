@@ -2,7 +2,7 @@ export interface KvestPageData {
   id: string;
   title: string;
   description: string;
-  image?: string;
+  image?: string | KvestImage;
   canSkip?: boolean;
   secret?: boolean;
   challenge?: Challenge;
@@ -34,9 +34,14 @@ export interface KvestData {
   geopoints: GeoPoint[];
 }
 
+export interface KvestImage {
+  items: string[];
+}
+
 export interface KvestPage extends KvestPageData {
   commonData: KvestData;
   geopoints?: GeoPoint[];
+  images?: KvestImage;
   last: boolean;
   passed?: boolean;
 }

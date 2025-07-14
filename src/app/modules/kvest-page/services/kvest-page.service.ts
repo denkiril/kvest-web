@@ -26,6 +26,7 @@ import {
 import {
   GeoPoint,
   KvestData,
+  KvestImage,
   KvestPage,
   KvestPageData,
 } from '../models/kvest-page.model';
@@ -173,9 +174,6 @@ export class KvestPageService {
     console.log('pageData:', this.pagesCounter, pageData);
 
     const { canSkip, geopoint_ids, id, image } = pageData;
-    const imageUrl: string | undefined = image
-      ? KVEST_IMAGES_URL.replace(ID_STR, routeId) + image
-      : undefined;
     const pageGeopoints: GeoPoint[] | undefined = geopoint_ids
       ?.map(pointId => geopoints.find(item => item.id === pointId))
       .filter(item => item !== undefined);
@@ -184,7 +182,7 @@ export class KvestPageService {
       ...pageData,
       canSkip: canSkip ?? !last,
       commonData,
-      image: imageUrl,
+      images: image ? this.generateImages(image, routeId) : undefined,
       geopoints: pageGeopoints,
       last,
       passed: this.passedIds.has(id),
@@ -228,5 +226,14 @@ export class KvestPageService {
   private skipPage(page: KvestPage): void {
     this.skippedIds.add(page.id);
     sessionStorage.setItem(SKIPPED_LS_KEY, JSON.stringify(Array.from(this.skippedIds)));
+  }
+
+  private generateImages(image: string | KvestImage, routeId: string): KvestImage {
+    const images: string[] = typeof image === 'string' ? [image] : image.items;
+    const items: string[] = images.map(
+      imageUrl => KVEST_IMAGES_URL.replace(ID_STR, routeId) + imageUrl,
+    );
+
+    return { items };
   }
 }

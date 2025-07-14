@@ -1,2 +1,10 @@
-<img class="image" alt="image" [src]="image()" (load)="onImageLoad()" />
+@for (item of imageItems(); track $index) {
+  <img
+    class="image"
+    [src]="item"
+    [alt]="'image_' + $index"
+    [style.opacity]="+($index === imagesCounter())"
+    (load)="$first && onImageLoad()"
+  />
+}
 <div class="cover-container" [class.pending]="pending()"></div>
