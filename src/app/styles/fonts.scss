@@ -1,4 +1,5 @@
-$assets-path: '/kvests/app/assets/';
+@import 'variables';
+
 $main-font-path: $assets-path + 'fonts/ubuntu/';
 
 @font-face {
